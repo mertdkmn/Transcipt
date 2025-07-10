@@ -193,6 +193,77 @@ export default function Hero() {
               </Button>
             </div>
 
+            {/* Output Format Preview */}
+            <div className="bg-gray-50 rounded-2xl p-8 mb-12 max-w-4xl mx-auto">
+              <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
+                Choose Your Output Format
+              </h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-lg p-6 border-2 border-blue-200">
+                  <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <Youtube className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="font-semibold mb-3 text-center">
+                    Dialogue Format
+                  </h3>
+                  <div className="text-sm text-gray-600 bg-gray-50 rounded p-3 font-mono">
+                    <div className="mb-2">
+                      [00:15] Speaker 1: Welcome to our podcast...
+                    </div>
+                    <div className="mb-2">
+                      [00:23] Speaker 2: Thanks for having me...
+                    </div>
+                    <div>[00:31] Speaker 1: Let's dive into...</div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Perfect for interviews & conversations
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg p-6 border-2 border-green-200">
+                  <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <FileAudio className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold mb-3 text-center">
+                    Summary Format
+                  </h3>
+                  <div className="text-sm text-gray-600 bg-gray-50 rounded p-3">
+                    <div className="mb-2">
+                      <strong>Key Points:</strong>
+                    </div>
+                    <div className="mb-1">• Main topic discussion</div>
+                    <div className="mb-1">• Important insights shared</div>
+                    <div>• Action items mentioned</div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Great for meetings & lectures
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg p-6 border-2 border-purple-200">
+                  <div className="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <Copy className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h3 className="font-semibold mb-3 text-center">
+                    Adjusted Notes
+                  </h3>
+                  <div className="text-sm text-gray-600 bg-gray-50 rounded p-3">
+                    <div className="mb-2">
+                      <strong>Topic:</strong> Introduction
+                    </div>
+                    <div className="mb-2">
+                      <strong>Duration:</strong> 2:15
+                    </div>
+                    <div>
+                      <strong>Notes:</strong> Clean, formatted text with proper
+                      punctuation and structure.
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Clean text for documentation
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Features */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="text-center">

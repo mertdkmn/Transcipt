@@ -7,7 +7,7 @@ import { createClient } from "../../supabase/server";
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
-  const fullName = formData.get("full_name")?.toString() || '';
+  const fullName = formData.get("full_name")?.toString() || "";
   const supabase = await createClient();
 
   if (!email || !password) {
@@ -18,52 +18,49 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  const { data: { user }, error } = await supabase.auth.signUp({
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
+        name: fullName,
         email: email,
-      }
+      },
     },
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-up", error.message);
-  }
-
-  if (user) {
-    try {
-
-      const { error: updateError } = await supabase
-        .from('users')
-        .insert({
-          id: user.id,
-          user_id: user.id,
-          name: fullName,
-          email: email,
-          token_identifier: user.id,
-          created_at: new Date().toISOString()
-        });
-
-      if (updateError) {
-        // Error handling without console.error
-        return encodedRedirect(
-          "error",
-          "/sign-up",
-          "Error updating user. Please try again.",
-        );
-      }
-    } catch (err) {
-      // Error handling without console.error
+    // Provide more specific error messages
+    if (error.message.includes("already registered")) {
       return encodedRedirect(
         "error",
         "/sign-up",
-        "Error updating user. Please try again.",
+        "This email is already registered. Please try signing in instead.",
       );
     }
+    if (error.message.includes("Password")) {
+      return encodedRedirect(
+        "error",
+        "/sign-up",
+        "Password must be at least 6 characters long.",
+      );
+    }
+    if (error.message.includes("Email")) {
+      return encodedRedirect(
+        "error",
+        "/sign-up",
+        "Please enter a valid email address.",
+      );
+    }
+    return encodedRedirect("error", "/sign-up", error.message);
   }
+
+  // The database trigger will automatically create the user record
+  // No need to manually insert into the users table
 
   return encodedRedirect(
     "success",
@@ -166,10 +163,10 @@ export const checkUserSubscription = async (userId: string) => {
   const supabase = await createClient();
 
   const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('status', 'active')
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("status", "active")
     .single();
 
   if (error) {
@@ -177,4 +174,59 @@ export const checkUserSubscription = async (userId: string) => {
   }
 
   return !!subscription;
+};
+
+// Transcript processing actions
+export const processTranscriptAction = async (formData: FormData) => {
+  const inputType = formData.get("inputType") as string;
+  const outputFormat = formData.get("outputFormat") as string;
+  const includeTimestamps = formData.get("includeTimestamps") === "true";
+  const speakerLabels = formData.get("speakerLabels") === "true";
+
+  const supabase = await createClient();
+
+  try {
+    let transcriptData;
+
+    if (inputType === "youtube") {
+      const youtubeUrl = formData.get("youtubeUrl") as string;
+      // Call YouTube processing edge function
+      const { data, error } = await supabase.functions.invoke(
+        "supabase-functions-process-youtube",
+        {
+          body: {
+            url: youtubeUrl,
+            outputFormat,
+            includeTimestamps,
+            speakerLabels,
+          },
+        },
+      );
+
+      if (error) throw error;
+      transcriptData = data;
+    } else {
+      // Handle file upload processing
+      const file = formData.get("file") as File;
+      const { data, error } = await supabase.functions.invoke(
+        "supabase-functions-process-audio",
+        {
+          body: {
+            file: await file.arrayBuffer(),
+            fileName: file.name,
+            outputFormat,
+            includeTimestamps,
+            speakerLabels,
+          },
+        },
+      );
+
+      if (error) throw error;
+      transcriptData = data;
+    }
+
+    return { success: true, data: transcriptData };
+  } catch (error) {
+    return { success: false, error: "Failed to process transcript" };
+  }
 };
