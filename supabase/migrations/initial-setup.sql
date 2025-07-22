@@ -97,7 +97,7 @@ $$;
 
 -- Create a function that will be triggered when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $
 BEGIN
   INSERT INTO public.users (
     id,
@@ -122,7 +122,11 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Fix security vulnerability by setting explicit search path
+ALTER FUNCTION public.handle_new_user()
+SET search_path = '';
 
 -- Create a trigger to call the function when a new user is added to auth.users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -132,7 +136,7 @@ CREATE TRIGGER on_auth_user_created
 
 -- Update the function to handle user updates as well
 CREATE OR REPLACE FUNCTION public.handle_user_update()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $
 BEGIN
   UPDATE public.users
   SET
@@ -144,7 +148,11 @@ BEGIN
   WHERE user_id = NEW.id::text;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Fix security vulnerability by setting explicit search path
+ALTER FUNCTION public.handle_user_update()
+SET search_path = '';
 
 -- Create a trigger to call the function when a user is updated in auth.users
 DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;

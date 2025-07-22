@@ -20,7 +20,7 @@ export default async function Home() {
       <Navbar />
       <Hero />
 
-      {/* Features Section */}
+      {/* Features Section */} 
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">

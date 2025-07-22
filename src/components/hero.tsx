@@ -26,7 +26,7 @@ export default function Hero() {
   const [inputType, setInputType] = useState<"youtube" | "upload">("youtube");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [outputFormat, setOutputFormat] = useState("dialogue");
+  const [outputFormat, setOutputFormat] = useState("summary");
   const [isProcessing, setIsProcessing] = useState(false);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [speakerLabels, setSpeakerLabels] = useState(false);
@@ -143,7 +143,6 @@ export default function Hero() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dialogue">Dialogue Format</SelectItem>
                     <SelectItem value="summary">Summary Format</SelectItem>
                     <SelectItem value="notes">Notes Format</SelectItem>
                   </SelectContent>
@@ -198,27 +197,7 @@ export default function Hero() {
               <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
                 Choose Your Output Format
               </h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-lg p-6 border-2 border-blue-200">
-                  <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                    <Youtube className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="font-semibold mb-3 text-center">
-                    Dialogue Format
-                  </h3>
-                  <div className="text-sm text-gray-600 bg-gray-50 rounded p-3 font-mono">
-                    <div className="mb-2">
-                      [00:15] Speaker 1: Welcome to our podcast...
-                    </div>
-                    <div className="mb-2">
-                      [00:23] Speaker 2: Thanks for having me...
-                    </div>
-                    <div>[00:31] Speaker 1: Let's dive into...</div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
-                    Perfect for interviews & conversations
-                  </p>
-                </div>
+              <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-white rounded-lg p-6 border-2 border-green-200">
                   <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                     <FileAudio className="w-6 h-6 text-green-600" />
