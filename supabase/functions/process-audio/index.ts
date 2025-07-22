@@ -42,9 +42,36 @@ Deno.serve(async (req)=>{
       });
     }
     const result = await openaiRes.json();
-    // result.text -> transcript
+    let transcriptText = result.text;
+    let finalOutput = transcriptText;
+    if ((outputFormat === "summary" || outputFormat === "notes") && transcriptText) {
+      // GPT-3.5 ile özet/not çıkar
+      const prompt = outputFormat === "summary"
+        ? `Aşağıdaki transcripti özetle:\n\n${transcriptText}`
+        : `Aşağıdaki transcriptten önemli ders notları çıkar:\n\n${transcriptText}`;
+      const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "Sen bir asistan olarak transkriptleri özetler ve notlar çıkarırsın." },
+            { role: "user", content: prompt }
+          ],
+          max_tokens: 1024,
+          temperature: 0.4
+        })
+      });
+      if (gptRes.ok) {
+        const gptJson = await gptRes.json();
+        finalOutput = gptJson.choices?.[0]?.message?.content || transcriptText;
+      }
+    }
     // Output formatlama
-    const formattedTranscript = generateMockTranscript(outputFormat, includeTimestamps, speakerLabels, fileName, result.text);
+    const formattedTranscript = generateMockTranscript(outputFormat, includeTimestamps, speakerLabels, fileName, finalOutput);
     return new Response(JSON.stringify({
       transcript: formattedTranscript
     }), {

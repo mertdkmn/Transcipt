@@ -30,6 +30,8 @@ export default function Hero() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [speakerLabels, setSpeakerLabels] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -38,12 +40,43 @@ export default function Hero() {
     }
   };
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     setIsProcessing(true);
-    // Simulate processing
-    setTimeout(() => {
+    setResult(null);
+    setError(null);
+    try {
+      let response, data;
+      if (inputType === "youtube") {
+        response = await fetch("/api/process-youtube", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: youtubeUrl,
+            outputFormat,
+            includeTimestamps,
+            speakerLabels,
+          }),
+        });
+      } else if (inputType === "upload" && selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("outputFormat", outputFormat);
+        formData.append("includeTimestamps", String(includeTimestamps));
+        formData.append("speakerLabels", String(speakerLabels));
+        response = await fetch("/api/process-audio", {
+          method: "POST",
+          body: formData,
+        });
+      }
+      if (!response) throw new Error("No response from server");
+      data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setResult(data.transcript || JSON.stringify(data));
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
       setIsProcessing(false);
-    }, 3000);
+    }
   };
 
   return (
@@ -143,6 +176,7 @@ export default function Hero() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="transcript">Transcript</SelectItem>
                     <SelectItem value="summary">Summary Format</SelectItem>
                     <SelectItem value="notes">Notes Format</SelectItem>
                   </SelectContent>
@@ -190,6 +224,21 @@ export default function Hero() {
                   "Generate Transcript"
                 )}
               </Button>
+              {/* Result or Error Output */}
+              {(result || error) && (
+                <div className="mt-6">
+                  {result && (
+                    <div className="bg-green-50 border border-green-200 rounded p-4 text-sm whitespace-pre-wrap">
+                      {result}
+                    </div>
+                  )}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded p-4 text-sm text-red-700">
+                      {error}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Output Format Preview */}
