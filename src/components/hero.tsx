@@ -40,6 +40,23 @@ export default function Hero() {
     }
   };
 
+  // YouTube video ID'sini ayıkla
+  function extractYouTubeVideoId(url: string): string | null {
+    // Kısa link: youtu.be/VIDEO_ID
+    const short = url.match(/youtu\.be\/([\w-]{11})/);
+    if (short) return short[1];
+    // Uzun link: youtube.com/watch?v=VIDEO_ID
+    const long = url.match(/[?&]v=([\w-]{11})/);
+    if (long) return long[1];
+    // Embed: youtube.com/embed/VIDEO_ID
+    const embed = url.match(/embed\/([\w-]{11})/);
+    if (embed) return embed[1];
+    // Shorts: youtube.com/shorts/VIDEO_ID
+    const shorts = url.match(/shorts\/([\w-]{11})/);
+    if (shorts) return shorts[1];
+    return null;
+  }
+
   const handleProcess = async () => {
     setIsProcessing(true);
     setResult(null);
@@ -47,11 +64,18 @@ export default function Hero() {
     try {
       let response, data;
       if (inputType === "youtube") {
+        const videoId = extractYouTubeVideoId(youtubeUrl.trim());
+        if (!videoId) {
+          setError("Lütfen geçerli bir YouTube video linki girin.");
+          setIsProcessing(false);
+          return;
+        }
+        const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
         response = await fetch("/api/process-youtube", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            url: youtubeUrl,
+            url: normalizedUrl,
             outputFormat,
             includeTimestamps,
             speakerLabels,
