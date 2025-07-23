@@ -71,7 +71,7 @@ export default function Hero() {
           return;
         }
         const normalizedUrl = `https://www.youtube.com/watch?v=${videoId}`;
-        response = await fetch("/api/process-youtube", {
+        response = await fetch("/api/youtube-audio", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
