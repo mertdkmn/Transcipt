@@ -158,7 +158,7 @@ export default function Hero() {
               {inputType === "youtube" ? (
                 <div className="mb-6">
                   <Input
-                    type="url"
+                    type="text"
                     placeholder="Paste YouTube URL here..."
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
